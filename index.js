@@ -31,12 +31,28 @@ async function run() {
                         const users = await cursor.toArray();
                         res.send(users);
                 })
-                // delete method
-                app.delete('/deleteUsers/:id', async (req, res) => {
-                        const id = req.params;
-                        const result = await userCollection.deleteOne({ _id: ObjectId(id) });
-                        console.log(result);
+                app.get('/users/:id', async (req, res) => {
+                        const id = req.params.id;
+                        const query = new ObjectId(id);
+                        const user = await userCollection.findOne(query);
+                        res.send(user);
+                        console.log("id", id);
                 })
+
+                // delete method
+
+                app.delete('/deleteUsers/:id', async (req, res) => {
+                        const id = req.params.id; // Extract the ID from params
+                        const objectId = new ObjectId(id); // Convert it to ObjectId
+                        const result = await userCollection.deleteOne({ _id: objectId });
+                        console.log(result);
+
+                        if (result.deletedCount === 1) {
+                                res.json({ message: 'User deleted successfully' });
+                        } else {
+                                res.status(404).json({ message: 'User not found' });
+                        }
+                });
 
                 // post method express
                 app.post('/users', async (req, res) => {
